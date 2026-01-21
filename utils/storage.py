@@ -1,7 +1,5 @@
 from pathlib import Path
 from uuid import uuid4
-
-
 import aiofiles
 from fastapi import UploadFile
 from config import settings
@@ -25,15 +23,14 @@ async def save_upload_files(
         
     upload_dir.mkdir(parents=True,exist_ok=True)
 
-#Generate safe unique filename
+#2)Generate safe unique filename
     original_name =Path(file.filename or "")
     ext = original_name.suffix.lower()
     filename = f"{uuid4().hex}{ext}"
     
     file_path = upload_dir / filename
     
-    #Save files in chunks
-    
+#3)Save files in chunks
     async with aiofiles.open(file_path,"wb") as out_files:
         while True:
             chunk = await file.read(1024 * 1024)
@@ -43,7 +40,7 @@ async def save_upload_files(
             
     await file.close()
 
-#4 Build Url path to store in DB
+#4)Build Url path to store in DB
     parts = [settings.MEDIA_URL.strip("/")]
     if subdir:
         parts.append(subdir.strip("/"))

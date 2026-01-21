@@ -28,9 +28,7 @@ async def  create_user(db:AsyncSession,user:UserCreate) -> UserResponse:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="User with this email already registered")
     
     return new_user
-    
-    
-    
+      
 #Function to upload user image
 async def upload_image(db:AsyncSession,user_id:int,file):
     result = await db.execute(select(User).where(User.id ==user_id))
