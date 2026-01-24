@@ -48,6 +48,21 @@ async def upload_image(db:AsyncSession,user_id:UUID,file):
     await db.refresh(user)
     return user
 
+
+async def get_users(db:AsyncSession) -> List[UserResponse]:
+    result = await db.execute(select(User))
+    users = result.all()
+    
+    if not users:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Users not found"
+        )
+        
+    return users
+
+
+
 #Function to gettting user by email
 async def get_user_by_email(db:AsyncSession,email:str):
     result =  await db.execute(select(User).filter(User.email == email))

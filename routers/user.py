@@ -1,6 +1,8 @@
-from crud.user import create_user,upload_image
+from crud.user import create_user,upload_image,get_user_by_id,get_users
 from db import get_db
 from uuid import UUID
+from utils.auth import get_current_user
+from sqlalchemy import select
 from schemas.user_schemas import UserCreate,UserResponse
 from models.models import User
 from fastapi import APIRouter,Depends,HTTPException,status
@@ -13,10 +15,10 @@ router = APIRouter(
     tags=["users"]
 )
 
-@router.post("/",response_model=UserResponse)
-async def create_new_user(user:UserCreate,db:AsyncSession = Depends(get_db)):
+@router.post("/register",response_model=UserResponse)
+async def create_new_user(user_data:UserCreate,db:AsyncSession = Depends(get_db)):
     try:
-        new_user = await create_user(db,user)
+        new_user = await create_user(db,user_data)
         return new_user
         
     except ValueError as e:
@@ -35,8 +37,17 @@ async def upload_user_image(user_id:UUID,file:UploadFile = File(...),db:AsyncSes
         
     return user
 
-# @router.get("/users",response_model=list[UserResponse])
-# async def get_users(db:AsyncSession=Depends(get_db)):
-#     users = await get_all_users(db)
-#     return users
+@router.get("/",response_model=list[UserResponse])
+async def get_all_users(db:AsyncSession=Depends(get_db)):
+    users = await get_users(db)
+    return users
+
+
+@router.get("/{user_id}",response_model=UserResponse)
+async def get_single_user(user_id:str,db:AsyncSession = Depends(get_db), user = Depends(get_current_user)):
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    return user
+    
 

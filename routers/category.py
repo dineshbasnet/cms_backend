@@ -32,13 +32,13 @@ async def get_single_category(category_id:int,db:AsyncSession = Depends(get_db))
     
     
 @router.put("/{category_id}",response_model=CategoryResponse)
-async def update_category_route(category_id:int,category_data:CategoryUpdate,db:AsyncSession=Depends(get_db)):
+async def update_category_route(category_id:int,category_data:CategoryUpdate,db:AsyncSession=Depends(get_db),user = Depends(get_current_user)):
     return await update_category(db,category_id,category_data)
 
 
 #Route for category image upload
 @router.post("/{category_id}/image",response_model=CategoryResponse)
-async def upload_category_image(category_id:int,file:UploadFile = File(...),db:AsyncSession = Depends(get_db)):
+async def upload_category_image(category_id:int,file:UploadFile = File(...),db:AsyncSession = Depends(get_db),user = Depends(get_current_user)):
     category = await upload_image(db,category_id,file)
     
         

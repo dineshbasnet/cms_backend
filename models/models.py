@@ -1,10 +1,10 @@
 import uuid
 from db import Base
-from sqlalchemy import Column,Integer,String,ForeignKey,DateTime,Table
+from sqlalchemy import Column,Integer,String,ForeignKey,DateTime,Table,Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
-
+from schemas.user_schemas import Roles,AccountStatusEnum
 
 #user model for cms system
 class User(Base):
@@ -14,11 +14,14 @@ class User(Base):
     email = Column(String,nullable=False)
     phone = Column(String,nullable=True)
     hash_password = Column(String,nullable=False)
+    role = Column(Enum(Roles),default=Roles.user)
     image_url = Column(String)
+    status = Column(Enum(AccountStatusEnum), default = AccountStatusEnum.active)
     posts = relationship('Post',back_populates='author')
     comments = relationship('Comment',back_populates='user')
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
 
 
 
@@ -63,6 +66,7 @@ class Post(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     tags = relationship('Tag',secondary='post_tags',back_populates='posts')
+    
     
   
 class Comment(Base):

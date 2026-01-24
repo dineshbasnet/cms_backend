@@ -1,8 +1,8 @@
-"""user id changing into uuid4
+"""access token creating
 
-Revision ID: 252bbf43150d
+Revision ID: e1b718ed1b10
 Revises: 
-Create Date: 2026-01-24 08:06:54.916233
+Create Date: 2026-01-24 20:05:24.090139
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '252bbf43150d'
+revision: str = 'e1b718ed1b10'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -46,9 +46,12 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('phone', sa.String(), nullable=True),
     sa.Column('hash_password', sa.String(), nullable=False),
+    sa.Column('role', sa.Enum('user', 'admin', 'author', name='roles'), nullable=True),
     sa.Column('image_url', sa.String(), nullable=True),
+    sa.Column('status', sa.Enum('active', 'inactive', 'suspended', name='accountstatusenum'), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('last_login', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_created_at'), 'users', ['created_at'], unique=False)
