@@ -3,6 +3,8 @@ from schemas.posts_schemas import PostCreate,PostResponse,PostUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter,Depends,HTTPException,status
 from crud.post import create_post,get_all_posts,get_post
+from models.models import User
+from utils.auth import get_current_active_user
 
 router = APIRouter(
     prefix="/posts",
@@ -10,9 +12,9 @@ router = APIRouter(
 )
 
 @router.post("/",response_model=PostResponse)
-async def create_new_post(post:PostCreate,db:AsyncSession = Depends(get_db)):
+async def create_new_post(post:PostCreate,db:AsyncSession = Depends(get_db),current_user:User = Depends(get_current_active_user)):
     try:
-        new_post = await create_post(db,post)
+        new_post = await create_post(db,current_user.id,post)
         return new_post
     
     except ValueError as e:

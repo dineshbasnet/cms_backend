@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from routers import user,post,category,auth
+from routers import user,post,category,auth,tag
 from config import settings
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,3 +30,4 @@ app.include_router(user.router)
 app.include_router(post.router)
 app.include_router(category.router)
 app.include_router(auth.router)
+app.include_router(tag.router)

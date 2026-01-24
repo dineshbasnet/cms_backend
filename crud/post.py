@@ -4,17 +4,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError,SQLAlchemyError
 from fastapi import HTTPException,status
 from typing import List
-from sqlalchemy import select
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+from uuid import UUID
+from models.models import Tag
 
 
 #Function to create posts
-async def create_post(db:AsyncSession,post:PostCreate) -> PostResponse:
+async def create_post(db:AsyncSession,author_id:UUID,post:PostCreate) -> PostResponse:
+    tags = []
+    if post.tags:
+        result = await db.execute(select(Tag).where(Tag.id.in_(post.tags)))
+        tags = result.scalars().all()
     
     new_post = Post(
         title = post.title,
         description = post.description,
         content = post.content,
-        category_id = post.category_id
+        category_id = post.category_id,
+        author_id = author_id,
+        tags = tags,
+        image_url = post.image_url
     )
     db.add(new_post)
     try:
@@ -32,9 +42,17 @@ async def create_post(db:AsyncSession,post:PostCreate) -> PostResponse:
 
 
 #Function to fetch all posts
-async def get_all_posts(db:AsyncSession) -> List[PostResponse]:
+async def get_all_posts(db:AsyncSession,skip:int = 0,limit:int = 20) -> List[PostResponse]:
     try:
-        result = await db.execute(select(Post))
+        result = await db.execute(
+            select(Post)
+            .options(
+                selectinload(Post.tags)
+            )
+            .offset(skip)
+            .limit(limit)
+            
+        )
         posts = result.scalars().all()
         return posts
     
