@@ -4,6 +4,7 @@ from schemas.category_schemas import CategoryResponse,CategoryCreate,CategoryUpd
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.models import Category
 from db import get_db
+from utils.auth import get_current_user
 from fastapi import UploadFile,File
 
 
@@ -13,7 +14,7 @@ router = APIRouter(
 )
 
 @router.post("/",response_model=CategoryResponse)
-async def create_new_category(category:CategoryCreate,db:AsyncSession = Depends(get_db)):
+async def create_new_category(category:CategoryCreate,db:AsyncSession = Depends(get_db),user = Depends(get_current_user)):
     try:
         new_cateogry = await create_category(db,category)
         return new_cateogry

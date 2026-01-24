@@ -1,6 +1,7 @@
 from pydantic import BaseModel,Field,field_serializer
 from typing import Optional
 from config import settings
+from uuid import UUID
 
 
 class CategoryCreate(BaseModel):
@@ -9,7 +10,7 @@ class CategoryCreate(BaseModel):
     
     
 class CategoryResponse(BaseModel):
-    id:int
+    id:UUID
     name:str
     description:Optional[str] = None
     image_url:Optional[str] = None

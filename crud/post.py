@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 #Function to create posts
 async def create_post(db:AsyncSession,post:PostCreate) -> PostResponse:
+    
     new_post = Post(
         title = post.title,
         description = post.description,

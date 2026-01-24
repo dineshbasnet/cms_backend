@@ -1,6 +1,7 @@
 from pydantic import BaseModel,EmailStr,Field,field_serializer
 from typing import Optional
 from config import settings
+from uuid import UUID
 
 class UserCreate(BaseModel):
     username:str = Field(...,min_length=2,max_length=30)
@@ -10,7 +11,7 @@ class UserCreate(BaseModel):
     
 
 class UserResponse(BaseModel):
-    id:int
+    id:UUID
     username:str
     email:EmailStr
     phone:Optional[str] = None

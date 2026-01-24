@@ -1,7 +1,7 @@
-import pydantic
 from pydantic import BaseModel,Field
 from typing import Optional,List
 from datetime import datetime
+from uuid import UUID
 
 class PostBase(BaseModel):
     title:str = Field(...,min_length=3,max_length=255)    
@@ -24,7 +24,7 @@ class PostUpdate(BaseModel):
     
     
 class PostResponse(PostBase):
-    id:int
+    id:UUID
     author_id:int
     created_at:datetime
     updated_at:datetime

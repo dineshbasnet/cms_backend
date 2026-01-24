@@ -1,5 +1,6 @@
 from crud.user import create_user,upload_image
 from db import get_db
+from uuid import UUID
 from schemas.user_schemas import UserCreate,UserResponse
 from models.models import User
 from fastapi import APIRouter,Depends,HTTPException,status
@@ -23,7 +24,7 @@ async def create_new_user(user:UserCreate,db:AsyncSession = Depends(get_db)):
     
 #end point for user image upload
 @router.post("/{user_id}/image",response_model=UserResponse)
-async def upload_user_image(user_id:int,file:UploadFile = File(...),db:AsyncSession=Depends(get_db)):
+async def upload_user_image(user_id:UUID,file:UploadFile = File(...),db:AsyncSession=Depends(get_db)):
     user = await upload_image(db,user_id,file)
     
     if not user:
