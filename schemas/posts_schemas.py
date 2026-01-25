@@ -18,12 +18,12 @@ class PostCreate(PostBase):
 
     
 class PostUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    content: Optional[str]
-    image_url: Optional[str]
-    category_id: Optional[UUID]
-    tags: Optional[List[UUID]]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    category_id: Optional[UUID] = None
+    tags: Optional[List[UUID]] = None
     
     
 class PostResponse(BaseModel):

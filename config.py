@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     MEDIA_URL:str = "/uploads"
     BASE_URL:str = "http://localhost:8000"
     
+    #Mail settings
+    MAIL_SERVER: str
+    MAIL_PORT: int
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+
+    
     
 
 settings = Settings()

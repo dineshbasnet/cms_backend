@@ -8,6 +8,7 @@ from models.models import User
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import UploadFile,File
+from utils.email import render_email_template,send_email_smtp_async
 
 
 router = APIRouter(
@@ -17,12 +18,22 @@ router = APIRouter(
 
 @router.post("/register",response_model=UserResponse)
 async def create_new_user(user_data:UserCreate,db:AsyncSession = Depends(get_db)):
-    try:
-        new_user = await create_user(db,user_data)
-        return new_user
-        
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"error occures {e}")
+    #Create new user
+    new_user = await create_user(db,user_data)
+    
+    #Send welcome email
+    email_html = render_email_template(
+        "register.html",
+        {"user_name":user_data.username,"user_email":user_data.email,"user_role":"user"}
+    )
+    
+    await send_email_smtp_async(
+        recipient=user_data.email,
+        subject="Welcome to My app",
+        html_content=email_html
+    )
+    
+    return new_user
     
 #end point for user image upload
 @router.post("/{user_id}/image",response_model=UserResponse)

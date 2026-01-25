@@ -8,8 +8,12 @@ class TagCreate(BaseModel):
     description:Optional[str] = None
     
     
-class TagResponse(TagCreate):
+class TagResponse(TagCreate): 
     id:UUID
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class TagUpdate(BaseModel):
     name:Optional[str] = None

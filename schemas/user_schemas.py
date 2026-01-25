@@ -41,11 +41,12 @@ class UserResponse(BaseModel):
         
 # for user update model for cms
 class UserUpdate(BaseModel):
-    username:Optional[str]
-    email:Optional[EmailStr]
-    phone:Optional[str]
-    image_url:Optional[str]
-    password:Optional[str]
-    
+    username:Optional[str] = None
+    email:Optional[EmailStr] = None
+    phone:Optional[str] = None
+    image_url:Optional[str] = None
+    password:Optional[str] = None
+    status:Optional[AccountStatusEnum] = None
+    role:Optional[Roles] = None
     
     

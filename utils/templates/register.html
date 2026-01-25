@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>Hello <strong>{{ user_name }}</strong>,</p>
+
+<p>Welcome to <strong>{{ app_name }}</strong> 🎉</p>
+
+<p>Your account has been successfully created.</p>
+
+<ul>
+  <li><strong>Email:</strong> {{ user_email }}</li>
+  <li><strong>Role:</strong> {{ user_role }}</li>
+</ul>
+
+<p>You can now log in and start using the platform.</p>
+
+<p>Cheers,<br />{{ app_name }} Team</p>
+{% endblock %}

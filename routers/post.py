@@ -2,8 +2,9 @@ from db import get_db
 from schemas.posts_schemas import PostCreate,PostResponse,PostUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter,Depends,HTTPException,status
-from crud.post import create_post,get_all_posts,get_post
+from crud.post import create_post,get_all_posts,get_post,update_post
 from models.models import User
+from uuid import UUID
 from utils.auth import get_current_active_user
 
 router = APIRouter(
@@ -26,8 +27,27 @@ async def create_new_post(post:PostCreate,db:AsyncSession = Depends(get_db),curr
 async def get_all_posts_route(db:AsyncSession = Depends(get_db)):
     return await get_all_posts(db)
 
-
-
 @router.get("/{post_id}",response_model=PostResponse)
-async def get_single_post(post_id:int,db:AsyncSession = Depends(get_db)):
+async def get_single_post(post_id:UUID,db:AsyncSession = Depends(get_db)):
     return await get_post(db,post_id)
+
+
+@router.put("/{post_id}",response_model=PostResponse)
+async def update_posts(
+    post_id:UUID,
+    post_data:PostUpdate,
+    db:AsyncSession = Depends(get_db),
+    current_user:User = Depends(get_current_active_user)
+):
+    post = await get_post(db,post_id)
+    
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post not found"
+        )
+        
+    updated_post = await update_post(db,post_data,post_id)
+
+    return updated_post
+    

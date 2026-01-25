@@ -7,6 +7,7 @@ from typing import List
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from uuid import UUID
+from schemas.tag_schemas import TagResponse
 from models.models import Tag
 
 
@@ -63,7 +64,7 @@ async def get_all_posts(db:AsyncSession,skip:int = 0,limit:int = 20) -> List[Pos
 
 #Function to fetch single posts
 async def get_post(db:AsyncSession,post_id:int) -> PostResponse:
-    result = await db.execute(select(Post).where(Post.id == post_id))
+    result = await db.execute(select(Post).options(selectinload(Post.tags)).where(Post.id == post_id))
     post = result.scalar_one_or_none()
 
     if not post:
@@ -73,4 +74,50 @@ async def get_post(db:AsyncSession,post_id:int) -> PostResponse:
         )
         
     return post
+
+
+#Function to update posts
+async def update_post(db:AsyncSession,update_data:PostUpdate,post_id:UUID) -> PostResponse:
+    result = await db.execute(
+        select(Post)
+        .options(selectinload(Post.tags))
+        .where(Post.id == post_id)
+    )
+    
+    post = result.scalars().first()
+    
+    if not post:
+        return None
+    
+    for field, value in update_data.dict(exclude_unset=True).items():
+        if field != "tags":
+            setattr(post,field,value)
+            
+    if update_data.tags is not None:
+        tags_result = await db.execute(
+            select(Tag).where(Tag.id.in_(update_data.tags))
+        )
+        post.tags = tags_result.scalars().all()
+    
+    await db.commit()
+    await db.refresh(post)
+
+    return PostResponse(
+        id=post.id,
+        title=post.title,
+        description=post.description,
+        content=post.content,
+        image_url=post.image_url,
+        author_id=post.author_id,
+        category_id=post.category_id,
+        tags=[TagResponse.from_orm(tag) for tag in post.tags],
+        created_at=post.created_at,
+        updated_at=post.updated_at
+    )
+
+
+
+    
+
+
     
