@@ -24,6 +24,15 @@ class Settings(BaseSettings):
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_FROM: str
+    
+    #ADMIN
+    ADMIN_NAME:str
+    ADMIN_EMAIL:str
+    ADMIN_PASSWORD:str
+    
+    #REDIS
+    REDIS_URL:str
+    
 
     
     

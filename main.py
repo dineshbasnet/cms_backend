@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from routers import user,post,category,auth,tag
 from config import settings
 from fastapi.middleware.cors import CORSMiddleware
+from db import async_session
+from utils.seed import seed_admin
 
 
 app = FastAPI()
@@ -25,6 +27,11 @@ app.mount(
     StaticFiles(directory=settings.MEDIA_ROOT),
     name="media"
 )
+
+@app.on_event("startup")
+async def startup():
+    async with async_session() as db:
+        await seed_admin(db)
 
 app.include_router(user.router)
 app.include_router(post.router)

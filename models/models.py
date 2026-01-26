@@ -1,6 +1,6 @@
 import uuid
 from db import Base
-from sqlalchemy import Column,Integer,String,ForeignKey,DateTime,Table,Enum
+from sqlalchemy import Column,Integer,String,ForeignKey,DateTime,Table,Enum, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
@@ -16,9 +16,14 @@ class User(Base):
     hash_password = Column(String,nullable=False)
     role = Column(Enum(Roles),default=Roles.user)
     image_url = Column(String)
-    status = Column(Enum(AccountStatusEnum), default = AccountStatusEnum.active)
+    verified = Column(Boolean,default=False)
+    status = Column(Enum(AccountStatusEnum), default = AccountStatusEnum.pending_verification)
+    
+    #Relationoship
     posts = relationship('Post',back_populates='author')
     comments = relationship('Comment',back_populates='user')
+    
+    #TimeStamps
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

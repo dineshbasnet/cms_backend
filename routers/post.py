@@ -5,7 +5,8 @@ from fastapi import APIRouter,Depends,HTTPException,status
 from crud.post import create_post,get_all_posts,get_post,update_post
 from models.models import User
 from uuid import UUID
-from utils.auth import get_current_active_user
+from schemas.user_schemas import Roles
+from utils.auth import get_current_active_user,get_current_user
 
 router = APIRouter(
     prefix="/posts",
@@ -13,7 +14,12 @@ router = APIRouter(
 )
 
 @router.post("/",response_model=PostResponse)
-async def create_new_post(post:PostCreate,db:AsyncSession = Depends(get_db),current_user:User = Depends(get_current_active_user)):
+async def create_new_post(post:PostCreate,db:AsyncSession = Depends(get_db),current_user:User = Depends(get_current_user)):
+    if current_user.role not in [Roles.admin,Roles.author]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied"
+        )
     try:
         new_post = await create_post(db,current_user.id,post)
         return new_post
@@ -37,7 +43,7 @@ async def update_posts(
     post_id:UUID,
     post_data:PostUpdate,
     db:AsyncSession = Depends(get_db),
-    current_user:User = Depends(get_current_active_user)
+    current_user:User = Depends(get_current_user)
 ):
     post = await get_post(db,post_id)
     

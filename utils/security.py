@@ -4,6 +4,8 @@ from uuid import uuid4
 from typing import Dict,Any,Optional
 from jose import jwt
 from config import settings
+import random
+import secrets
 
 pwd_context = CryptContext(schemes=["argon2"],deprecated = "auto")
 
@@ -34,3 +36,12 @@ def create_access_token(data:Dict[str,Any],expires_delta:Optional[timedelta] = N
     encoded_jwt = jwt.encode(to_encode,settings.SECRET_KEY,algorithm=settings.ALGORITHM)
     
     return encoded_jwt
+
+#Function to generate random otp
+def generate_otp(length:int = 6) -> str:
+    return "".join(str(random.randint(0,9)) for _ in range(length))
+
+
+#Generate reset token
+def generate_secure_token(length:int = 32) -> str:
+    return secrets.token_urlsafe(length)
