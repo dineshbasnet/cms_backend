@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
 from schemas.user_schemas import Roles,AccountStatusEnum
+from schemas.posts_schemas import PostStatusEnum
 
 #user model for cms system
 class User(Base):
@@ -38,7 +39,9 @@ class Category(Base):
     name = Column(String,nullable=False)
     description = Column(String,nullable=True)
     image_url = Column(String,nullable=True)
+    
     posts = relationship('Post',back_populates='category')
+    
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -63,14 +66,20 @@ class Post(Base):
     description = Column(String,nullable=True)
     content = Column(String,nullable=False)
     image_url = Column(String)
+    status = Column(Enum(PostStatusEnum),default=PostStatusEnum.draft)
     author_id = Column(UUID(as_uuid=True),ForeignKey('users.id'),nullable=False)
     category_id = Column(UUID(as_uuid=True),ForeignKey('categories.id'),nullable=False)
+    
+    #Relationship
     author = relationship('User',back_populates='posts')
     category = relationship('Category',back_populates='posts')
     comments = relationship('Comment',back_populates='posts')
+    tags = relationship('Tag',secondary='post_tags',back_populates='posts')
+      
+    #Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    tags = relationship('Tag',secondary='post_tags',back_populates='posts')
+
     
     
   

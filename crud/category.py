@@ -1,11 +1,14 @@
-from models.models import Category
+from models.models import Category, User
 from schemas.category_schemas import CategoryCreate,CategoryResponse,CategoryUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError,SQLAlchemyError
 from fastapi import HTTPException,status
 from typing import List
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from utils.storage import save_upload_files
+from uuid import UUID
+from schemas.user_schemas import Roles
 
 
 # Function for creating category
@@ -107,6 +110,46 @@ async def upload_image(db:AsyncSession,category_id:int,file):
     await db.commit()
     await db.refresh(category)
     return category
+
+
+
+#function to delete category
+async def delete_category(
+    db:AsyncSession,
+    category_id:UUID,
+    current_user:User
+) -> CategoryResponse:
+    """Only admin can delete category"""
+    if current_user.role != Roles.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this category"
+        )
+        
+    result = await db.execute(
+        select(Category)
+        .options(selectinload(Category.posts))
+        .where(Category.id == category_id)      
+    )
+    cat = result.scalar_one_or_none()
+    
+    if not cat:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+        
+    if cat.posts: 
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete category with associated posts"
+        )
+        
+    
+    await db.delete(cat)
+    await db.commit()
+
+    return cat
         
         
     

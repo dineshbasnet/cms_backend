@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from routers import user,post,category,auth,tag
+from routers.post_route import author_route,admin_route,user_route
 from config import settings
 from fastapi.middleware.cors import CORSMiddleware
 from db import async_session
@@ -38,3 +39,7 @@ app.include_router(post.router)
 app.include_router(category.router)
 app.include_router(auth.router)
 app.include_router(tag.router)
+app.include_router(author_route.router)
+app.include_router(admin_route.router)
+app.include_router(user_route.router)
+

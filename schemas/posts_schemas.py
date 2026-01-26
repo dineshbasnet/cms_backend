@@ -2,8 +2,16 @@ from pydantic import BaseModel,Field
 from typing import Optional,List
 from datetime import datetime
 from uuid import UUID
+from enum import Enum
 from .tag_schemas import TagResponse
 
+class PostStatusEnum(str, Enum):
+    draft = "draft"                
+    published = "published"        
+    archived = "archived"          
+    pending_review = "pending_review" 
+    
+    
 class PostBase(BaseModel):
     title:str = Field(...,min_length=3,max_length=255)    
     description:Optional[str] = None
@@ -14,7 +22,10 @@ class PostBase(BaseModel):
     
     
 class PostCreate(PostBase):
-    pass
+    status:Optional[PostStatusEnum] = None
+    
+    class Config:
+        from_attributes = True
 
     
 class PostUpdate(BaseModel):
@@ -37,7 +48,13 @@ class PostResponse(BaseModel):
     tags: List[TagResponse] = []
     created_at: datetime
     updated_at: datetime
+    status:PostStatusEnum
+    created_at:datetime
+    updated_at:datetime
     
     class Config:
         from_attributes = True
     
+
+class PostStatusUpdate(BaseModel):
+    status:PostStatusEnum
