@@ -1,14 +1,14 @@
 from crud.user import (create_user,get_users,get_user_by_email,update_user_attributes,update_user_image,
-                       get_user_by_id,update_user,delete_user)
+                       get_user_by_id,update_user,delete_user,user_role_update)
 from db import get_db
 from uuid import UUID
 from typing import List, Optional
-from utils.auth import get_current_user, get_current_active_user
+from utils.auth import get_current_active_user
 from utils.security import generate_otp, generate_secure_token,hashed_password, verify_password
 from sqlalchemy import select
 from schemas.user_schemas import (
             UserCreate,UserResponse,Roles,MeUserResponse, AccountStatusEnum,PasswordResetRequest,
-            OTPVerification, PasswordChange, UserUpdate)
+            OTPVerification, PasswordChange, UserUpdate,UserRoleUpdate)
 from models.models import User
 from fastapi import APIRouter,Depends,HTTPException,status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +39,7 @@ async def create_new_user(user_data:UserCreate,db:AsyncSession = Depends(get_db)
         html_content=email_html
     )
     
-    return new_user
+    return {"message":"Registration is successful","user":new_user}
     
 #Password management routes
 @router.post("/password/request-reset",status_code=status.HTTP_202_ACCEPTED)
@@ -201,7 +201,7 @@ async def update_user_profile(
     await db.commit()
     await db.refresh(update_user)
 
-    return update_user
+    return {"message":"User updated successfully","updated_user":update_user}
 
 @router.post("/me/image",status_code=status.HTTP_200_OK)
 async def upload_profile_picture(
@@ -344,3 +344,16 @@ async def verify_user(
     
     return {"message":"User verified successfully","user_id":user.id}
 
+
+@router.put("/{user_id}/role",response_model=UserRoleUpdate)
+async def update_role_route(
+    user_id:UUID,
+    role_data:UserRoleUpdate,
+    db:AsyncSession = Depends(get_db),
+    current_user:User = Depends(get_current_active_user)
+):
+    
+    new_role = Roles(role_data.role)
+    updated_user = await user_role_update(user_id,new_role,db,current_user)
+    
+    return {"role":updated_user.role}

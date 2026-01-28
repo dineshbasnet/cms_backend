@@ -12,8 +12,8 @@ class User(Base):
     __tablename__="users"
     id = Column(UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
     username = Column(String,nullable=False)
-    email = Column(String,nullable=False)
-    phone = Column(String,nullable=True)
+    email = Column(String,nullable=False,unique=True)
+    phone = Column(String,nullable=False,unique=True)
     hash_password = Column(String,nullable=False)
     role = Column(Enum(Roles),default=Roles.user)
     image_url = Column(String)
@@ -36,7 +36,7 @@ class User(Base):
 class Category(Base):
     __tablename__ = "categories"
     id = Column(UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    name = Column(String,nullable=False)
+    name = Column(String,nullable=False,unique=True)
     description = Column(String,nullable=True)
     image_url = Column(String,nullable=True)
     
@@ -50,7 +50,7 @@ class Category(Base):
 class Tag(Base):
     __tablename__="tags"
     id = Column(UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    name = Column(String,nullable=False)
+    name = Column(String,nullable=False,unique=True)
     description = Column(String,nullable=True)
     posts = relationship('Post',secondary='post_tags',back_populates='tags')
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
@@ -65,7 +65,7 @@ class Post(Base):
     title = Column(String,nullable=False)
     description = Column(String,nullable=True)
     content = Column(String,nullable=False)
-    image_url = Column(String)
+    image_url = Column(String,nullable=True)
     status = Column(Enum(PostStatusEnum),default=PostStatusEnum.draft)
     author_id = Column(UUID(as_uuid=True),ForeignKey('users.id'),nullable=False)
     category_id = Column(UUID(as_uuid=True),ForeignKey('categories.id'),nullable=False)
@@ -85,7 +85,7 @@ class Post(Base):
   
 class Comment(Base):
     __tablename__="comments"
-    id = Column(Integer,primary_key=True)
+    id = Column(UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
     post_id = Column(UUID(as_uuid=True),ForeignKey('posts.id'),nullable=False)
     user_id = Column(UUID(as_uuid=True),ForeignKey('users.id'),nullable=False)
     message = Column(String,nullable=False)

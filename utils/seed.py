@@ -16,6 +16,7 @@ async def seed_admin(db:AsyncSession):
     admin_user = User(
         username= settings.ADMIN_NAME,
         email= settings.ADMIN_EMAIL,
+        phone = settings.PHONE_NUMBER,
         hash_password = hashed_password(settings.ADMIN_PASSWORD),
         role = Roles.admin,
         status = AccountStatusEnum.active,

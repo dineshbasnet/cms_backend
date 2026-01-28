@@ -1,5 +1,5 @@
 from pydantic import BaseModel,EmailStr,Field,field_serializer, validator
-from typing import Optional
+from typing import Optional,Literal
 from config import settings
 from enum import Enum
 from uuid import UUID
@@ -88,3 +88,7 @@ class PasswordChange(BaseModel):
 class OTPVerification(BaseModel):
     email: EmailStr
     otp: str
+    
+    
+class UserRoleUpdate(BaseModel):
+    role:Literal[Roles.admin,Roles.author,Roles.user]

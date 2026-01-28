@@ -1,4 +1,4 @@
-from schemas.user_schemas import UserCreate,UserResponse,UserUpdate,AccountStatusEnum
+from schemas.user_schemas import UserCreate,UserUpdate,AccountStatusEnum,Roles
 from models.models import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -6,6 +6,7 @@ from typing import List,Optional, Dict, Any
 from uuid import UUID
 import secrets
 from fastapi import HTTPException,status,UploadFile
+from sqlalchemy.exc import SQLAlchemyError
 from utils.security import hashed_password
 from utils.storage import save_upload_files
 
@@ -201,3 +202,49 @@ async def update_user_image(
             detail=f"Error uploading image: {str(e)}"
         )
 
+
+async def user_role_update(
+    user_id:UUID,
+    new_role:Roles,
+    db:AsyncSession,
+    current_user:User
+):
+    """Only admin can update user roles"""
+    #Check current user role
+    if current_user.role != Roles.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update role"
+        )
+        
+    user = await get_user_by_id(db,user_id)
+    print(user)
+    
+    if not user:
+        raise HTTPException(
+            status_code= status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+        
+    if current_user.id == user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admin cannot change their own role"
+        )
+    user.role = new_role
+    
+    try:
+        await db.commit()
+        await db.refresh(user)
+        
+            
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code= status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+        
+        
+    return user

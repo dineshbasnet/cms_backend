@@ -1,4 +1,5 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,field_serializer
+from config import settings
 from typing import Optional,List
 from datetime import datetime
 from uuid import UUID
@@ -17,7 +18,6 @@ class PostBase(BaseModel):
     description:Optional[str] = None
     content:str
     category_id:UUID
-    image_url:Optional[str] = None
     tags:Optional[List[UUID]] = []
     
     
@@ -51,6 +51,12 @@ class PostResponse(BaseModel):
     status:PostStatusEnum
     created_at:datetime
     updated_at:datetime
+    @field_serializer("image_url")
+    def serialize_image_url(self,image_url:Optional[str]) -> Optional[str]:
+        if not image_url:
+            return None
+        
+        return f"{settings.BASE_URL}{image_url}"
     
     class Config:
         from_attributes = True

@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     ADMIN_NAME:str
     ADMIN_EMAIL:str
     ADMIN_PASSWORD:str
+    PHONE_NUMBER:str
     
     #REDIS
     REDIS_URL:str

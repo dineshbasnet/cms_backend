@@ -25,7 +25,7 @@ async def create_category(db:AsyncSession,category:CategoryCreate) -> CategoryRe
         
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Invalid data")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Category already exists")
     
     return new_category
 

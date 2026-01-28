@@ -1,4 +1,4 @@
-from fastapi import Depends,HTTPException,status
+from fastapi import Depends,HTTPException,status,Header
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt,JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,7 +52,6 @@ async def get_current_user(
             algorithms=[settings.ALGORITHM],
         )
         user_id: str | None = payload.get("sub")
-        print(f"this is user id hia ta:{user_id}")
         if user_id is None:
             raise credentials_exception
 
@@ -118,3 +117,22 @@ def get_user_role_from_token(token: str) -> Optional[str]:
     except JWTError:
         return None
     
+    
+def get_token_from_header(authorization:str = Header(...)) -> str:
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+            
+        )
+        
+    return authorization.split(" ")[1]
+
+def get_current_role(token:str = Depends(get_token_from_header)) -> str:
+    role = get_user_role_from_token(token)
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    return role
